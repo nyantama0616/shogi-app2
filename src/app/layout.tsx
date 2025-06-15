@@ -5,8 +5,6 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { UnExpectedError } from "@/components/error/unexpected-error";
 
-export const runtime = "edge";
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
