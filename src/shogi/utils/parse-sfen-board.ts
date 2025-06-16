@@ -1,4 +1,4 @@
-import { Board, Piece, PieceType } from './types';
+import { Board, Piece, PieceType } from '../types';
 
 export const parseSFENBoard = (sfen: string): Board => {
   // SFEN文字列から盤面部分を抽出
