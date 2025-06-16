@@ -19,12 +19,12 @@ export const fetchKifuData = async (kifuId: string): Promise<KifuData> => {
 
   const mockData: Record<string, KifuData> = {
     'sample0': {
-      sfen: "startpos",
+      sfen: "position startpos",
       evaluations: [],
       totalMoves: 0,
     },
     'sample1': {
-      sfen: "startpos moves 7g7f 3c3d 2g2f 4c4d 2f2e 2b3c 6i7h 8c8d 2e2d 2c2d 2h2d 3c2d 3i2h",
+      sfen: "position startpos moves 7g7f 3c3d 2g2f 4c4d 2f2e 2b3c 6i7h 8c8d 2e2d 2c2d 2h2d 3c2d 3i2h",
       evaluations: [
         { move: 1, evaluation: 50 },
         { move: 2, evaluation: 30 },
@@ -43,7 +43,7 @@ export const fetchKifuData = async (kifuId: string): Promise<KifuData> => {
       totalMoves: 13,
     },
     'sample2': {
-      sfen: "startpos moves 2g2f 8c8d 2f2e 8d8e 7g7f 4c4d 3i4h 3c3d",
+      sfen: "position startpos moves 2g2f 8c8d 2f2e 8d8e 7g7f 4c4d 3i4h 3c3d",
       evaluations: [
         { move: 1, evaluation: 100 },
         { move: 2, evaluation: 120 },

@@ -1,14 +1,20 @@
 /**
  * 指し手を列挙したSFEN文字列から指定手数での局面SFEN文字列を生成する
- * @param movesSfen - "startpos moves 7g7f 3c3d ..." 形式のSFEN文字列
+ * @param movesSfen - "position startpos moves 7g7f 3c3d ..." 形式のSFEN文字列
  * @param moveNumber - 手数（0は初期局面、1は1手目後の局面）
  * @returns 局面のSFEN文字列
  */
 export const getPositionSfen = (movesSfen: string, moveNumber: number): string => {
   const parts = movesSfen.split(' ');
   
-  if (parts[0] !== 'startpos') {
-    throw new Error('Invalid SFEN format: must start with "startpos"');
+  // "position startpos" または "startpos" の両方に対応
+  let startIndex = 0;
+  if (parts[0] === 'position' && parts[1] === 'startpos') {
+    startIndex = 1;
+  } else if (parts[0] === 'startpos') {
+    startIndex = 0;
+  } else {
+    throw new Error('Invalid SFEN format: must start with "position startpos" or "startpos"');
   }
   
   if (moveNumber === 0) {
@@ -58,11 +64,12 @@ const applyMovesToPosition = (moves: string[]): string => {
     board = applyMove(board, move);
   }
 
-  const turn = moves.length % 2 === 0 ? 'b' : 'w';
-  const moveCount = Math.floor(moves.length / 2) + 1;
-
   // 盤面を SFEN 文字列に変換
   const boardSfen = convertBoardToSfen(board);
+  const turn = moves.length % 2 === 0 ? 'b' : 'w';
+  const moveCount = Math.floor(moves.length / 2) + 1;
+  
+  // 局面のSFEN文字列を返す（盤面 手番 持ち駒 手数）
   return `${boardSfen} ${turn} - ${moveCount}`;
 };
 
