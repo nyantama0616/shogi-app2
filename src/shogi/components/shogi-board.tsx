@@ -1,5 +1,5 @@
 import { Board } from '@/shogi/types';
-import { ShogiRow } from './ShogiRow';
+import { ShogiRow } from './shogi-row';
 
 export const ShogiBoard = ({ board }: { board: Board }) => {
   return (

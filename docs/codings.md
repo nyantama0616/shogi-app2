@@ -45,3 +45,4 @@
 
 ### Other
 - プライベートな関数やコンポーネントは、メインコンポーネントの下に定義してください。これにより、抽象->具体という順序で定義されるため、可読性が向上します。
+- The name of file and directory must be kebab-case.

@@ -1,5 +1,5 @@
 import { Piece } from '@/shogi/types';
-import { ShogiCell } from './ShogiCell';
+import { ShogiCell } from './shogi-cell';
 
 export const ShogiRow = ({ row }: { row: Piece[] }) => {
   return (

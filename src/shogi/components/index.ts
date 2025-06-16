@@ -1,4 +1,4 @@
-export { ShogiBoard } from './ShogiBoard';
-export { ShogiRow } from './ShogiRow';
-export { ShogiCell } from './ShogiCell';
-export { EvaluationChart } from './EvaluationChart';
+export { ShogiBoard } from './shogi-board';
+export { ShogiRow } from './shogi-row';
+export { ShogiCell } from './shogi-cell';
+export { EvaluationChart } from './evaluation-chart';
