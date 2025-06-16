@@ -55,6 +55,11 @@ export const fetchKifuData = async (kifuId: string): Promise<KifuData> => {
         { move: 8, evaluation: 200 },
       ],
       totalMoves: 8,
+    },
+    "piyo0": {
+      sfen: "position startpos moves 7g7f 3c3d 8h2b 3a2b B*4e 7a6b 4e3d 6a5b 6g6f 5a4b 7i8h 4a3b 8h7g 2b3c 3d5f 5c5d 8g8f 4c4d 8f8e 5d5e 5f6g 8c8d 2h8h 8d8e 7f7e 8e8f 7g8f B*5d P*8e 5d2g+ 6g7f 6b5c 6i5h 5c6d 8i7g 4b3a 5i4h 5b4b 8e8d 8b8d 8f8e 8d8b 8e8d 5e5f 8d8c 5f5g+ 5h5g 8b5b P*5h 6d7e 7f3b+ 3a3b 8c7b+ P*8g",
+      evaluations: [...Array(54)].map((_, i) => ({ move: i + 1, evaluation: 0 })),
+      totalMoves: 54,
     }
   };
 

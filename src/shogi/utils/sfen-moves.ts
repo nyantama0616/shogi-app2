@@ -60,8 +60,10 @@ const applyMovesToPosition = (moves: string[]): string => {
   ];
 
   // 各指し手を順番に適用
-  for (const move of moves) {
-    board = applyMove(board, move);
+  for (let i = 0; i < moves.length; i++) {
+    const move = moves[i];
+    const isBlackTurn = i % 2 === 0; // 偶数番目は先手（黒）
+    board = applyMove(board, move, isBlackTurn);
   }
 
   // 盤面を SFEN 文字列に変換
@@ -77,12 +79,48 @@ const applyMovesToPosition = (moves: string[]): string => {
  * 1つの指し手を盤面に適用する
  * @param board - 現在の盤面
  * @param move - 指し手 (例: '7g7f')
+ * @param isBlackTurn - 先手の番かどうか
  * @returns 指し手適用後の盤面
  */
-const applyMove = (board: string[][], move: string): string[][] => {
+const applyMove = (board: string[][], move: string, isBlackTurn: boolean): string[][] => {
   const newBoard = board.map(row => [...row]);
   
-  if (move.length === 4) {
+  if (move.includes('*')) {
+    // 駒打ち (例: 'B*4e')
+    const [piece, position] = move.split('*');
+    if (position && position.length === 2) {
+      const file = 9 - parseInt(position[0]);
+      const rank = position[1].charCodeAt(0) - 'a'.charCodeAt(0);
+      
+      // 範囲チェック
+      if (rank >= 0 && rank < 9 && file >= 0 && file < 9) {
+        // 先手は大文字、後手は小文字
+        const actualPiece = isBlackTurn ? piece.toUpperCase() : piece.toLowerCase();
+        newBoard[rank][file] = actualPiece;
+      } else {
+        console.error(`Invalid drop position: ${position}, rank:${rank}, file:${file}`);
+      }
+    }
+  } else if (move.includes('+')) {
+    // 成り (例: '2g2f+')
+    const baseMove = move.replace('+', '');
+    if (baseMove.length === 4) {
+      const fromFile = 9 - parseInt(baseMove[0]);
+      const fromRank = baseMove[1].charCodeAt(0) - 'a'.charCodeAt(0);
+      const toFile = 9 - parseInt(baseMove[2]);
+      const toRank = baseMove[3].charCodeAt(0) - 'a'.charCodeAt(0);
+      
+      // 範囲チェック
+      if (fromRank >= 0 && fromRank < 9 && fromFile >= 0 && fromFile < 9 &&
+          toRank >= 0 && toRank < 9 && toFile >= 0 && toFile < 9) {
+        const piece = board[fromRank][fromFile];
+        // 成り駒に変換（先手/後手の区別を保持）
+        const promotedPiece = piece.startsWith('+') ? piece : `+${piece}`;
+        newBoard[toRank][toFile] = promotedPiece;
+        newBoard[fromRank][fromFile] = '';
+      }
+    }
+  } else if (move.length === 4) {
     // 通常の移動 (例: '7g7f')
     // 将棋の盤面表示: 9筋が左(0)、1筋が右(8)
     const fromFile = 9 - parseInt(move[0]); // 7 -> 2 (9-7=2)
@@ -90,10 +128,19 @@ const applyMove = (board: string[][], move: string): string[][] => {
     const toFile = 9 - parseInt(move[2]);   // 7 -> 2 (9-7=2)
     const toRank = move[3].charCodeAt(0) - 'a'.charCodeAt(0);   // 'f' -> 5
     
+    // 範囲チェック
+    if (fromRank < 0 || fromRank >= 9 || fromFile < 0 || fromFile >= 9 ||
+        toRank < 0 || toRank >= 9 || toFile < 0 || toFile >= 9) {
+      console.error(`Invalid move: ${move}, fromRank:${fromRank}, fromFile:${fromFile}, toRank:${toRank}, toFile:${toFile}`);
+      return newBoard;
+    }
+    
     // 移動先に駒を配置
     newBoard[toRank][toFile] = board[fromRank][fromFile];
     // 移動元を空にする
     newBoard[fromRank][fromFile] = '';
+  } else {
+    console.warn(`Unhandled move format: ${move}`);
   }
   
   return newBoard;
