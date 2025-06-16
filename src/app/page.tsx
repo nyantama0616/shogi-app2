@@ -1,21 +1,10 @@
-'use client';
+import { fetchKifuData } from '@/shogi/api';
+import { TopPageClient } from './client';
 
-import { useBoard } from '@/shogi/hooks/useBoard';
-import { useEvaluationChart } from '@/shogi/hooks/useEvaluationChart';
-import { ShogiBoard, EvaluationChart } from '@/shogi/components';
-
-export default function TopPage() {
-  const { board } = useBoard();
-  const { evaluationData } = useEvaluationChart();
+export default async function TopPage() {
+  const { sfen, evaluations } = await fetchKifuData('sample1');
   
   return (
-    <div className="flex flex-col lg:flex-row gap-8 p-8">
-      <div className="flex justify-center">
-        <ShogiBoard board={board} />
-      </div>
-      <div className="flex justify-center">
-        <EvaluationChart data={evaluationData} />
-      </div>
-    </div>
+    <TopPageClient sfen={sfen} evaluations={evaluations} />
   );
 }
