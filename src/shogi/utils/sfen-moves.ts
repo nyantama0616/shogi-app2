@@ -46,44 +46,53 @@ export const getPositionSfen = (movesSfen: string, moveNumber: number): string =
  * @returns 局面のSFEN文字列
  */
 const applyMovesToPosition = (moves: string[]): string => {
-  // 初期局面の盤面を2次元配列で表現
-  let board = [
-    ['l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l'], // 1段目
-    ['', 'r', '', '', '', '', '', 'b', ''],          // 2段目
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'], // 3段目
-    ['', '', '', '', '', '', '', '', ''],            // 4段目
-    ['', '', '', '', '', '', '', '', ''],            // 5段目
-    ['', '', '', '', '', '', '', '', ''],            // 6段目
-    ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'], // 7段目
-    ['', 'B', '', '', '', '', '', 'R', ''],          // 8段目
-    ['L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'], // 9段目
-  ];
+  // 初期局面の盤面状態を作成
+  let gameState = {
+    pieces: [
+      ['l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l'], // 1段目
+      ['', 'r', '', '', '', '', '', 'b', ''],          // 2段目
+      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'], // 3段目
+      ['', '', '', '', '', '', '', '', ''],            // 4段目
+      ['', '', '', '', '', '', '', '', ''],            // 5段目
+      ['', '', '', '', '', '', '', '', ''],            // 6段目
+      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'], // 7段目
+      ['', 'B', '', '', '', '', '', 'R', ''],          // 8段目
+      ['L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'], // 9段目
+    ],
+    blackHand: {},
+    whiteHand: {},
+  };
 
   // 各指し手を順番に適用
   for (let i = 0; i < moves.length; i++) {
     const move = moves[i];
     const isBlackTurn = i % 2 === 0; // 偶数番目は先手（黒）
-    board = applyMove(board, move, isBlackTurn);
+    gameState = applyMove(gameState, move, isBlackTurn);
   }
 
   // 盤面を SFEN 文字列に変換
-  const boardSfen = convertBoardToSfen(board);
+  const boardSfen = convertBoardToSfen(gameState.pieces);
+  const handSfen = convertHandsToSfen(gameState.blackHand, gameState.whiteHand);
   const turn = moves.length % 2 === 0 ? 'b' : 'w';
   const moveCount = Math.floor(moves.length / 2) + 1;
   
   // 局面のSFEN文字列を返す（盤面 手番 持ち駒 手数）
-  return `${boardSfen} ${turn} - ${moveCount}`;
+  return `${boardSfen} ${turn} ${handSfen} ${moveCount}`;
 };
 
 /**
- * 1つの指し手を盤面に適用する
- * @param board - 現在の盤面
+ * 1つの指し手をゲーム状態に適用する
+ * @param gameState - 現在のゲーム状態
  * @param move - 指し手 (例: '7g7f')
  * @param isBlackTurn - 先手の番かどうか
- * @returns 指し手適用後の盤面
+ * @returns 指し手適用後のゲーム状態
  */
-const applyMove = (board: string[][], move: string, isBlackTurn: boolean): string[][] => {
-  const newBoard = board.map(row => [...row]);
+const applyMove = (gameState: any, move: string, isBlackTurn: boolean): any => {
+  const newGameState = {
+    pieces: gameState.pieces.map((row: string[]) => [...row]),
+    blackHand: { ...gameState.blackHand },
+    whiteHand: { ...gameState.whiteHand },
+  };
   
   if (move.includes('*')) {
     // 駒打ち (例: 'B*4e')
@@ -96,7 +105,21 @@ const applyMove = (board: string[][], move: string, isBlackTurn: boolean): strin
       if (rank >= 0 && rank < 9 && file >= 0 && file < 9) {
         // 先手は大文字、後手は小文字
         const actualPiece = isBlackTurn ? piece.toUpperCase() : piece.toLowerCase();
-        newBoard[rank][file] = actualPiece;
+        newGameState.pieces[rank][file] = actualPiece;
+        
+        // 持ち駒から駒を減らす
+        const handPiece = piece.toUpperCase() as any;
+        if (isBlackTurn) {
+          newGameState.blackHand[handPiece] = Math.max((newGameState.blackHand[handPiece] || 0) - 1, 0);
+          if (newGameState.blackHand[handPiece] === 0) {
+            delete newGameState.blackHand[handPiece];
+          }
+        } else {
+          newGameState.whiteHand[handPiece] = Math.max((newGameState.whiteHand[handPiece] || 0) - 1, 0);
+          if (newGameState.whiteHand[handPiece] === 0) {
+            delete newGameState.whiteHand[handPiece];
+          }
+        }
       } else {
         console.error(`Invalid drop position: ${position}, rank:${rank}, file:${file}`);
       }
@@ -113,37 +136,107 @@ const applyMove = (board: string[][], move: string, isBlackTurn: boolean): strin
       // 範囲チェック
       if (fromRank >= 0 && fromRank < 9 && fromFile >= 0 && fromFile < 9 &&
           toRank >= 0 && toRank < 9 && toFile >= 0 && toFile < 9) {
-        const piece = board[fromRank][fromFile];
+        const piece = gameState.pieces[fromRank][fromFile];
+        const capturedPiece = gameState.pieces[toRank][toFile];
+        
+        // 駒を取った場合は持ち駒に追加
+        if (capturedPiece) {
+          addCapturedPieceToHand(newGameState, capturedPiece, isBlackTurn);
+        }
+        
         // 成り駒に変換（先手/後手の区別を保持）
         const promotedPiece = piece.startsWith('+') ? piece : `+${piece}`;
-        newBoard[toRank][toFile] = promotedPiece;
-        newBoard[fromRank][fromFile] = '';
+        newGameState.pieces[toRank][toFile] = promotedPiece;
+        newGameState.pieces[fromRank][fromFile] = '';
       }
     }
   } else if (move.length === 4) {
     // 通常の移動 (例: '7g7f')
-    // 将棋の盤面表示: 9筋が左(0)、1筋が右(8)
-    const fromFile = 9 - parseInt(move[0]); // 7 -> 2 (9-7=2)
-    const fromRank = move[1].charCodeAt(0) - 'a'.charCodeAt(0); // 'g' -> 6
-    const toFile = 9 - parseInt(move[2]);   // 7 -> 2 (9-7=2)
-    const toRank = move[3].charCodeAt(0) - 'a'.charCodeAt(0);   // 'f' -> 5
+    const fromFile = 9 - parseInt(move[0]);
+    const fromRank = move[1].charCodeAt(0) - 'a'.charCodeAt(0);
+    const toFile = 9 - parseInt(move[2]);
+    const toRank = move[3].charCodeAt(0) - 'a'.charCodeAt(0);
     
     // 範囲チェック
     if (fromRank < 0 || fromRank >= 9 || fromFile < 0 || fromFile >= 9 ||
         toRank < 0 || toRank >= 9 || toFile < 0 || toFile >= 9) {
       console.error(`Invalid move: ${move}, fromRank:${fromRank}, fromFile:${fromFile}, toRank:${toRank}, toFile:${toFile}`);
-      return newBoard;
+      return newGameState;
+    }
+    
+    const capturedPiece = gameState.pieces[toRank][toFile];
+    
+    // 駒を取った場合は持ち駒に追加
+    if (capturedPiece) {
+      addCapturedPieceToHand(newGameState, capturedPiece, isBlackTurn);
     }
     
     // 移動先に駒を配置
-    newBoard[toRank][toFile] = board[fromRank][fromFile];
+    newGameState.pieces[toRank][toFile] = gameState.pieces[fromRank][fromFile];
     // 移動元を空にする
-    newBoard[fromRank][fromFile] = '';
+    newGameState.pieces[fromRank][fromFile] = '';
   } else {
     console.warn(`Unhandled move format: ${move}`);
   }
   
-  return newBoard;
+  return newGameState;
+};
+
+/**
+ * 持ち駒をSFEN文字列に変換する
+ * @param blackHand - 先手の持ち駒
+ * @param whiteHand - 後手の持ち駒
+ * @returns SFEN持ち駒文字列
+ */
+const convertHandsToSfen = (blackHand: Record<string, number>, whiteHand: Record<string, number>): string => {
+  const pieces = ['R', 'B', 'G', 'S', 'N', 'L', 'P']; // 駒の優先順位
+  let handStr = '';
+  
+  // 先手の持ち駒
+  for (const piece of pieces) {
+    const count = blackHand[piece] || 0;
+    if (count > 0) {
+      if (count === 1) {
+        handStr += piece;
+      } else {
+        handStr += count + piece;
+      }
+    }
+  }
+  
+  // 後手の持ち駒
+  for (const piece of pieces) {
+    const count = whiteHand[piece] || 0;
+    if (count > 0) {
+      if (count === 1) {
+        handStr += piece.toLowerCase();
+      } else {
+        handStr += count + piece.toLowerCase();
+      }
+    }
+  }
+  
+  return handStr || '-';
+};
+
+/**
+ * 取った駒を持ち駒に追加する
+ * @param gameState - ゲーム状態
+ * @param capturedPiece - 取った駒
+ * @param isBlackTurn - 先手の番かどうか
+ */
+const addCapturedPieceToHand = (gameState: any, capturedPiece: string, isBlackTurn: boolean): void => {
+  // 成り駒の場合は元の駒に戻す
+  let basePiece = capturedPiece.replace('+', '');
+  
+  // 大文字に統一（持ち駒は大文字で管理）
+  basePiece = basePiece.toUpperCase();
+  
+  if (isBlackTurn) {
+    gameState.blackHand[basePiece] = (gameState.blackHand[basePiece] || 0) + 1;
+  } else {
+    gameState.whiteHand[basePiece] = (gameState.whiteHand[basePiece] || 0) + 1;
+  }
 };
 
 /**
