@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/shadcn/chart";
-import { Separator } from "@/components/shadcn/separator";
 import { Line, LineChart, XAxis, YAxis, ReferenceLine, ResponsiveContainer } from "recharts";
 import { EvaluationData } from "@/shogi/hooks/useEvaluationChart";
 

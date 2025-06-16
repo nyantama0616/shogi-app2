@@ -4,16 +4,21 @@
  * @param moveNumber - 手数（0は初期局面、1は1手目後の局面）
  * @returns 局面のSFEN文字列
  */
+
+import { HandPieceType } from "../types";
+
+// ゲーム状態の型定義
+type GameState = {
+  pieces: string[][];
+  blackHand: Record<string, number>;
+  whiteHand: Record<string, number>;
+};
+
 export const getPositionSfen = (movesSfen: string, moveNumber: number): string => {
   const parts = movesSfen.split(' ');
   
   // "position startpos" または "startpos" の両方に対応
-  let startIndex = 0;
-  if (parts[0] === 'position' && parts[1] === 'startpos') {
-    startIndex = 1;
-  } else if (parts[0] === 'startpos') {
-    startIndex = 0;
-  } else {
+  if (!(parts[0] === 'position' && parts[1] === 'startpos') && parts[0] !== 'startpos') {
     throw new Error('Invalid SFEN format: must start with "position startpos" or "startpos"');
   }
   
@@ -87,7 +92,7 @@ const applyMovesToPosition = (moves: string[]): string => {
  * @param isBlackTurn - 先手の番かどうか
  * @returns 指し手適用後のゲーム状態
  */
-const applyMove = (gameState: any, move: string, isBlackTurn: boolean): any => {
+const applyMove = (gameState: GameState, move: string, isBlackTurn: boolean): GameState => {
   const newGameState = {
     pieces: gameState.pieces.map((row: string[]) => [...row]),
     blackHand: { ...gameState.blackHand },
@@ -108,7 +113,7 @@ const applyMove = (gameState: any, move: string, isBlackTurn: boolean): any => {
         newGameState.pieces[rank][file] = actualPiece;
         
         // 持ち駒から駒を減らす
-        const handPiece = piece.toUpperCase() as any;
+        const handPiece = piece.toUpperCase() as HandPieceType;
         if (isBlackTurn) {
           newGameState.blackHand[handPiece] = Math.max((newGameState.blackHand[handPiece] || 0) - 1, 0);
           if (newGameState.blackHand[handPiece] === 0) {
@@ -225,7 +230,7 @@ const convertHandsToSfen = (blackHand: Record<string, number>, whiteHand: Record
  * @param capturedPiece - 取った駒
  * @param isBlackTurn - 先手の番かどうか
  */
-const addCapturedPieceToHand = (gameState: any, capturedPiece: string, isBlackTurn: boolean): void => {
+const addCapturedPieceToHand = (gameState: GameState, capturedPiece: string, isBlackTurn: boolean): void => {
   // 成り駒の場合は元の駒に戻す
   let basePiece = capturedPiece.replace('+', '');
   

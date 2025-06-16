@@ -1,4 +1,4 @@
-import { Hand } from '@/shogi/types';
+import { Hand, HandPieceType } from '@/shogi/types';
 import { PIECE_NAMES } from '@/shogi/constants';
 
 type HandPiecesProps = {
@@ -7,6 +7,7 @@ type HandPiecesProps = {
 };
 
 export const HandPieces = ({ hand, isBlack }: HandPiecesProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handEntries = Object.entries(hand).filter(([_, count]) => count > 0);
   
   if (handEntries.length === 0) {
@@ -26,7 +27,7 @@ export const HandPieces = ({ hand, isBlack }: HandPiecesProps) => {
         {handEntries.map(([pieceType, count]) => (
           <HandPieceItem
             key={pieceType}
-            pieceType={pieceType}
+            pieceType={pieceType as HandPieceType}
             count={count}
             isBlack={isBlack}
           />
@@ -37,11 +38,11 @@ export const HandPieces = ({ hand, isBlack }: HandPiecesProps) => {
 };
 
 const HandPieceItem = ({ pieceType, count, isBlack }: { 
-  pieceType: string; 
+  pieceType: HandPieceType; 
   count: number; 
   isBlack: boolean; 
 }) => {
-  const pieceName = PIECE_NAMES[pieceType as keyof typeof PIECE_NAMES];
+  const pieceName = PIECE_NAMES[pieceType];
   
   return (
     <div className="flex items-center justify-center bg-yellow-50 border border-yellow-200 rounded p-1">
