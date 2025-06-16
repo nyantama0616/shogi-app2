@@ -26,7 +26,7 @@ export const TopPageClient = ({ sfen, evaluations, totalMoves }: TopPageClientPr
     <div className="flex flex-col gap-8 p-8">
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex justify-center">
-          <ShogiBoard board={board} />
+          <ShogiBoard boardPieces={board.boardPieces} />
         </div>
         <div className="flex justify-center">
           <EvaluationChart data={evaluations} />
@@ -40,7 +40,7 @@ export const TopPageClient = ({ sfen, evaluations, totalMoves }: TopPageClientPr
           canGoPrevious={canGoPrevious}
           canGoNext={canGoNext}
           currentMove={currentMove}
-          totalMoves={evaluations.length}
+          totalMoves={totalMoves}
         />
       </div>
     </div>
