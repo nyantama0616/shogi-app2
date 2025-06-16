@@ -1,6 +1,6 @@
 'use client';
 
-import { useBoard } from '@/shogi/hooks/useBoard';
+import { getBoardFromMoves } from '@/shogi/utils/board';
 import { useKifuController } from '@/shogi/hooks/use-kifu-controller';
 import { ShogiBoard, EvaluationChart, KifuController } from '@/shogi/components';
 import { EvaluationData } from '@/shogi/hooks/useEvaluationChart';
@@ -20,7 +20,7 @@ export const TopPageClient = ({ sfen, evaluations, totalMoves }: TopPageClientPr
     canGoNext,
   } = useKifuController(totalMoves);
   
-  const { board } = useBoard(sfen, currentMove);
+  const board = getBoardFromMoves(sfen, currentMove);
   
   return (
     <div className="flex flex-col gap-8 p-8">
