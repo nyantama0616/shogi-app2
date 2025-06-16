@@ -37,7 +37,7 @@ export const TopPageClient = ({ sfen, evaluations, totalMoves }: TopPageClientPr
         </div>
         
         <div className="flex justify-center">
-          <EvaluationChart data={evaluations} />
+          <EvaluationChart data={evaluations} currentMove={currentMove} />
         </div>
       </div>
       
