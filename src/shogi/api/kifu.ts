@@ -3,6 +3,7 @@ import { EvaluationData } from '@/shogi/hooks/useEvaluationChart';
 export type KifuData = {
   sfen: string;
   evaluations: EvaluationData[];
+  totalMoves: number;
 };
 
 export const fetchKifuData = async (kifuId: string): Promise<KifuData> => {
@@ -30,7 +31,8 @@ export const fetchKifuData = async (kifuId: string): Promise<KifuData> => {
         { move: 8, evaluation: -30 },
         { move: 9, evaluation: 200 },
         { move: 10, evaluation: 150 },
-      ]
+      ],
+      totalMoves: 10,
     },
     'sample2': {
       sfen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL",
@@ -43,7 +45,8 @@ export const fetchKifuData = async (kifuId: string): Promise<KifuData> => {
         { move: 6, evaluation: -150 },
         { move: 7, evaluation: 50 },
         { move: 8, evaluation: 200 },
-      ]
+      ],
+      totalMoves: 8,
     }
   };
 
