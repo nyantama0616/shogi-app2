@@ -1,7 +1,10 @@
-import { parseSFENBoard } from '@/shogi/utils';
+import { parseSFENBoard, getPositionSfen } from '@/shogi/utils/';
 
-export const useBoard = (sfen: string) => {
-  const board = parseSFENBoard(sfen);
+export const useBoard = (movesSfen: string, currentMove: number) => {
+  const positionSfen = getPositionSfen(movesSfen, currentMove);
+  const board = parseSFENBoard(positionSfen);
+  console.log(`positionSfen: ${positionSfen}`);
+  
 
   return {
     board

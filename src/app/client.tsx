@@ -12,7 +12,6 @@ type TopPageClientProps = {
 };
 
 export const TopPageClient = ({ sfen, evaluations, totalMoves }: TopPageClientProps) => {
-  const { board } = useBoard(sfen);
   const {
     currentMove,
     handlePrevious,
@@ -20,6 +19,8 @@ export const TopPageClient = ({ sfen, evaluations, totalMoves }: TopPageClientPr
     canGoPrevious,
     canGoNext,
   } = useKifuController(totalMoves);
+  
+  const { board } = useBoard(sfen, currentMove);
   
   return (
     <div className="flex flex-col gap-8 p-8">
