@@ -1,0 +1,1 @@
+export { fetchKifuData, type KifuData } from './kifu';
